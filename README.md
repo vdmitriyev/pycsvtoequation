@@ -4,12 +4,13 @@ Simple python script that converts list of equations from csv file to separate l
 
 ### Dependencies
 
-* Python 2.7
-* Miktex
+* [Python 2.7](https://www.python.org/download/releases/2.7/)
+* [Miktex](http://miktex.org/) or other LaTeX package
+* [Sympy](https://github.com/sympy/sympy)
 
 ### Usage
 
-Check ```config.py```, ```csvtolatex.py``` files and apply your own configurations. For changin templates check ```template.tex``` and ```template.html```. Change path to your 'Sympy' package in ```config.py``` (it's used for generating proper LaTeX and MathML). Put your data into data folder in csv format. Run main script:
+Check ```config.py```, ```csvtolatex.py``` files and apply your own configurations. For changin templates check ```template.tex``` and ```template.html```. Change path to your 'Sympy' package in ```config.py``` (it's used for generating proper LaTeX, MathML or MathJax). Put your data into data folder in csv format. Run main script:
 ```
 python csvtolatex.py
 ```

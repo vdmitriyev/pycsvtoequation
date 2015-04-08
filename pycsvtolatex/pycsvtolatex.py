@@ -17,14 +17,16 @@ def csv_to_latex(csv_data):
 
         Continuesly interating csv data and saving as LaTeX or MathML
     """
-    context = config.LATEX_CSV_DATA_PATTERN
+    #context = config.LATEX_CSV_DATA_PATTERN
     #context = config.MATHML_CSV_DATA_PATTERN
+    context = config.MATHJAX_CSV_DATA_PATTERN
+    
     for index, row in enumerate(csv_data):
         save_equation(row, index, context, separate_equations=True)
 
 def main():
     # processing data
-    csv_data = read_csv('data/sympy-tests - Original tests.csv')
+    csv_data = read_csv(config.DATA_FOLDER + '//' + config.CSV_FILE)
     csv_to_latex(csv_data)
 
 if __name__ == '__main__':

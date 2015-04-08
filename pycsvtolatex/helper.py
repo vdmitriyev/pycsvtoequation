@@ -19,51 +19,70 @@ import sys
 import config as config
 sys.path.insert(0, config.SYMPY_PATH)
 
+# printers
+from sympy.printing.latex import LatexPrinter
+from sympy.printing.mathml import MathMLPrinter, mathml
+from sympy.utilities.mathml import *
+
 # sympy package
 from sympy import *
 from sympy.utilities.solution import *
-# printers
-from sympy.printing.latex import LatexPrinter
-from sympy.printing.mathml import MathMLPrinter
 
 x = Symbol('x')
 y = Symbol('y')
+z = Symbol('z')
+
 
 # constants
 TEX_BAT_FILE_NAME = '_latex.bat'
 PY_BAT_FILE_NAME = 'run-solver.bat'
 
-def to_template(solution, context, printer):
+def to_template(row, context, printer):
     """
     (list, dict) -> str
 
         Reading template and replacing values inside from ones send.
 
     """
+    
 
-    _template = read_file(context['PathToTemplate'])
+    #print dir(printer)
+
+    result = read_file(context['PathToTemplate'])
+
+    # #code_to_execute = 'dsdsdsa = log(50 * x - 1, 7) - 5'
+    # code_to_execute = 'dsdsdsa = {x: 0, y: 2}, {x: 2, y: 0}, {x: -2-(((sqrt(11))*(I))/2), y: -2+(((sqrt(11))*(I))/2)}, {x: -2+(((sqrt(11))*(I))/2), y: -2-(((sqrt(11))*(I))/2)}'
+    
+    # exec code_to_execute
+    # print dsdsdsa
+    # print dir(dsdsdsa)
 
     for mapping in context['MapppingCSVToLatex']:
-        index_field = context['MapppingCSVToLatex'][mapping]
-        value = solution[index_field]
+        field = context['MapppingCSVToLatex'][mapping]
+        value_index = field['index']
+        value_type = field['type']
+        value = row[value_index]
 
         # some work arround to execute fetched formula for proper conversion
-        try:
-            code_to_execute = 'expression = {0}'.format(value)
-            exec code_to_execute
-            value = printer._print(expression)
+        if value_type == 'equation':
+            try:
+                code_to_execute = 'expression_own = {0}'.format(str(value))
+                exec code_to_execute
+                value = printer._print(expression_own)
 
-            # is the context points to mathml
-            if context['OutputType'] == 'mathml':
-                value = value.toprettyxml()
-        except:
-            value = solution[index_field]
-            pass
+                # when context points to mathml
+                if context['OutputType'] == 'mathml':
+                    value = value.toprettyxml()
+                    value = c2p(value, simple=True)
+            except Exception, ex:
+                print '[x] exception: {0}'.format(str(ex))
+                print '[i] exception at value: {0}'.format(str(value))
+                value = row[value_index]
 
         # replacing template's default value with fetched one
-        _template = _template.replace(mapping, str(value))
+        result = result.replace(mapping, str(value))
     
-    return _template
+    return result
 
 def save_equation(solutions, index, context, separate_equations=False):
     """
@@ -79,14 +98,17 @@ def save_equation(solutions, index, context, separate_equations=False):
     # creating the folder for tex file
     create_directory(equation_name)
 
-    if context['OutputType'] == 'latex':
+    if context['OutputType'] in ('latex'):
         printer = LatexPrinter()
         extension = '.tex'
     elif context['OutputType'] == 'mathml':
         printer = MathMLPrinter()
         extension = '.html'
+    elif context['OutputType'] == 'mathjax':
+        printer = LatexPrinter()
+        extension = '.html'
     else:
-        print '[e] UNKNOWN type of output, set "latex" or "mathml"'
+        print '[e] UNKNOWN type of output, set "latex", "mathml" or "mathjax"'
         return
 
     _file_name = '{0}/{1}{2}'.format(equation_name, equation_name + '-' + str(adjust(index)), extension)
