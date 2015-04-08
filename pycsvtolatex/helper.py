@@ -9,8 +9,8 @@ __date__    = '08.04.2015'
 __description__ = 'Directory helper to manage folder for TEX'
 
 import os
+import csv
 import codecs
-import imp
 
 # importing sympy module located in parent folder
 # NOTE that the original sympy should be removed from system
@@ -21,6 +21,9 @@ sys.path.insert(0, 'c:\\github\\mathapp\\master\\')
 # sympy package
 from sympy import *
 from sympy.utilities.solution import *
+# printers
+from sympy.printing.latex import LatexPrinter
+from sympy.printing.mathml import MathMLPrinter
 
 x = Symbol('x')
 y = Symbol('y')
@@ -29,7 +32,7 @@ y = Symbol('y')
 TEX_BAT_FILE_NAME = '_latex.bat'
 PY_BAT_FILE_NAME = 'run-solver.bat'
 
-def to_template(solution, csv_data_pattern):
+def to_template(solution, csv_data_pattern, printer):
     """
     (list, dict) -> str
 
@@ -47,13 +50,17 @@ def to_template(solution, csv_data_pattern):
         try:
             code_to_execute = 'expression = {0}'.format(value)
             exec code_to_execute
-            value = latex(expression)
+            value = printer._print(expression)
+
+            
+            if csv_data_pattern['OutputType'] == 'mathml':
+                value = value.toprettyxml()
         except:
             value = solution[index_field]
             pass
 
         # replacing template's default value with fetched one
-        _template = _template.replace(mapping, value)
+        _template = _template.replace(mapping, str(value))
     
     return _template
 
@@ -70,11 +77,26 @@ def save_tex(solutions, index, csv_data_pattern, separate_equations=False):
 
     # creating the folder for tex file
     create_directory(equation_name)
-    tex_file_name = '{0}/{1}.tex'.format(equation_name, equation_name + '-' + str(adjust(index)))
-    save_file(tex_file_name, to_template(solutions, csv_data_pattern))
+    
+
+    if csv_data_pattern['OutputType'] == 'latex':
+        printer = LatexPrinter()
+        extension = '.tex'
+    elif csv_data_pattern['OutputType'] == 'mathml':
+        printer = MathMLPrinter()
+        extension = '.html'
+
+    else:
+        print '[e] UNKNOWN type of output, set "latex" or "mathml"'
+        return
+
+    _file_name = '{0}/{1}{2}'.format(equation_name, equation_name + '-' + str(adjust(index)), extension)
+    
+    
+    save_file(_file_name, to_template(solutions, csv_data_pattern, printer))
 
     # some info output
-    print '[i] tex saved into "{}"'.format(tex_file_name)
+    print '[i] {0} saved into "{1}"'.format(csv_data_pattern['OutputType'], _file_name)
 
 
 def create_directory(directory):
@@ -167,6 +189,22 @@ def read_file(file_name):
     with open(file_name, 'r') as file_input:
         file_content = file_input.read()
     return file_content
+
+def read_csv(csv_file, delimiter=',', quotechar='"'):
+    """
+        (str, str, str) -> (list)
+
+        Reading CSV data from specified file
+    """
+
+    data = list()
+    with open(csv_file, 'rb') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter=delimiter, quotechar=quotechar)
+        for row in csvreader:
+            data.append(row)
+
+    return data
+
 
 def adjust(number, max_len=3):
     """
