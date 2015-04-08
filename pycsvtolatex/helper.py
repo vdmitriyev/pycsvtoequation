@@ -3,7 +3,7 @@
 
 __credits__ = ['Viktor Dmitriyev']
 __license__ = '?'
-__version__ = '1.3.0'
+__version__ = '1.4.0'
 __status__  = 'dev'
 __date__    = '08.04.2015'
 __description__ = 'Directory helper to manage folder for TEX'
@@ -14,9 +14,10 @@ import codecs
 
 # importing sympy module located in parent folder
 # NOTE that the original sympy should be removed from system
-# if othet sympy won't be removed, they will be used instead
+# if the sympy won't be removed, they will be used instead
 import sys
-sys.path.insert(0, 'c:\\github\\mathapp\\master\\')
+import config as config
+sys.path.insert(0, config.SYMPY_PATH)
 
 # sympy package
 from sympy import *
@@ -32,18 +33,18 @@ y = Symbol('y')
 TEX_BAT_FILE_NAME = '_latex.bat'
 PY_BAT_FILE_NAME = 'run-solver.bat'
 
-def to_template(solution, csv_data_pattern, printer):
+def to_template(solution, context, printer):
     """
     (list, dict) -> str
 
-        Reading LaTeX template and replacing values inside from ones send.
+        Reading template and replacing values inside from ones send.
 
     """
 
-    _template = read_file(csv_data_pattern['PathToTemplate'])
+    _template = read_file(context['PathToTemplate'])
 
-    for mapping in csv_data_pattern['MapppingCSVToLatex']:
-        index_field = csv_data_pattern['MapppingCSVToLatex'][mapping]
+    for mapping in context['MapppingCSVToLatex']:
+        index_field = context['MapppingCSVToLatex'][mapping]
         value = solution[index_field]
 
         # some work arround to execute fetched formula for proper conversion
@@ -52,8 +53,8 @@ def to_template(solution, csv_data_pattern, printer):
             exec code_to_execute
             value = printer._print(expression)
 
-            
-            if csv_data_pattern['OutputType'] == 'mathml':
+            # is the context points to mathml
+            if context['OutputType'] == 'mathml':
                 value = value.toprettyxml()
         except:
             value = solution[index_field]
@@ -64,28 +65,26 @@ def to_template(solution, csv_data_pattern, printer):
     
     return _template
 
-def save_tex(solutions, index, csv_data_pattern, separate_equations=False):
+def save_equation(solutions, index, context, separate_equations=False):
     """
         (list, str) -> None
 
-        Saving solution as TEX file
+        Saving solution as LaTex or MathML file
     """
 
     # identifying the name of current python file
     #equation_name = os.path.basename(py_file_name)[:-3]
-    equation_name = csv_data_pattern['TargetNamePrefix']
+    equation_name = context['TargetNamePrefix']
 
     # creating the folder for tex file
     create_directory(equation_name)
-    
 
-    if csv_data_pattern['OutputType'] == 'latex':
+    if context['OutputType'] == 'latex':
         printer = LatexPrinter()
         extension = '.tex'
-    elif csv_data_pattern['OutputType'] == 'mathml':
+    elif context['OutputType'] == 'mathml':
         printer = MathMLPrinter()
         extension = '.html'
-
     else:
         print '[e] UNKNOWN type of output, set "latex" or "mathml"'
         return
@@ -93,10 +92,10 @@ def save_tex(solutions, index, csv_data_pattern, separate_equations=False):
     _file_name = '{0}/{1}{2}'.format(equation_name, equation_name + '-' + str(adjust(index)), extension)
     
     
-    save_file(_file_name, to_template(solutions, csv_data_pattern, printer))
+    save_file(_file_name, to_template(solutions, context, printer))
 
     # some info output
-    print '[i] {0} saved into "{1}"'.format(csv_data_pattern['OutputType'], _file_name)
+    print '[i] {0} saved into "{1}"'.format(context['OutputType'], _file_name)
 
 
 def create_directory(directory):
