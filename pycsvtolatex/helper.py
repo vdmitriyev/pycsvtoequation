@@ -3,7 +3,7 @@
 
 __credits__ = ['Viktor Dmitriyev']
 __license__ = '?'
-__version__ = '1.4.0'
+__version__ = '1.5.0'
 __status__  = 'dev'
 __date__    = '08.04.2015'
 __description__ = 'Directory helper to manage folder for TEX'
@@ -44,18 +44,8 @@ def to_template(row, context, printer):
         Reading template and replacing values inside from ones send.
 
     """
-    
-
-    #print dir(printer)
 
     result = read_file(context['PathToTemplate'])
-
-    # #code_to_execute = 'dsdsdsa = log(50 * x - 1, 7) - 5'
-    # code_to_execute = 'dsdsdsa = {x: 0, y: 2}, {x: 2, y: 0}, {x: -2-(((sqrt(11))*(I))/2), y: -2+(((sqrt(11))*(I))/2)}, {x: -2+(((sqrt(11))*(I))/2), y: -2-(((sqrt(11))*(I))/2)}'
-    
-    # exec code_to_execute
-    # print dsdsdsa
-    # print dir(dsdsdsa)
 
     for mapping in context['MapppingCSVToLatex']:
         field = context['MapppingCSVToLatex'][mapping]
@@ -111,7 +101,7 @@ def save_equation(solutions, index, context, separate_equations=False):
         print '[e] UNKNOWN type of output, set "latex", "mathml" or "mathjax"'
         return
 
-    _file_name = '{0}/{1}{2}'.format(equation_name, equation_name + '-' + str(adjust(index)), extension)
+    _file_name = '{0}/{1}{2}'.format(equation_name, equation_name + '-' + str(adjust_number(index)), extension)
     
     
     save_file(_file_name, to_template(solutions, context, printer))
@@ -227,12 +217,13 @@ def read_csv(csv_file, delimiter=',', quotechar='"'):
     return data
 
 
-def adjust(number, max_len=3):
+def adjust_number(number, max_len=3):
     """
         (int, int) -> (str)
 
         Adjusting number
     """
+
     return  (max_len - len(str(number))) * '0' + str(number)
 
 
