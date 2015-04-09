@@ -1,6 +1,6 @@
 ### About
 
-Simple python script that converts list of equations from csv file into separate LaTeX, MathML or MathJax files. The best working option for now is MathJax.
+Simple python script that converts list of equations from CSV file into separate human-readable equations by meand of LaTeX, MathML or MathJax. The best working option currently is MathJax.
 
 ### Dependencies
 
@@ -10,13 +10,13 @@ Simple python script that converts list of equations from csv file into separate
 
 ### Usage
 
-Check ```config.py```, ```csvtolatex.py``` files and apply your own configurations. For changing templates check ```template.tex``` and ```template.html```. Change path to your 'Sympy' package in ```config.py``` (it's used for generating proper LaTeX, MathML or MathJax). Put your data into data folder in csv format. Run main script:
+Check ```config.py```, ```pycsvtoequation.py``` files and apply your own configurations. For changing templates check ```template-latex.tex```, ```template-mathjax.html``` or ```template-mathml.html```. Change path to your 'Sympy' package in ```config.py``` (it's used for generating proper LaTeX, MathML or MathJax). Put your data into data folder in csv format. Run main script:
 ```
-python csvtolatex.py
+python pycsvtoequation.py
 ```
 or 
 ```
-python csvtolatex.py > output-log.txt
+python pycsvtoequation.py > output-log.txt
 ```
 Naviagate to the create folder, if necessary compile all LaTeX file into pdfs and view them, or just use browser to view generated html with MathML or MathJax.
 
