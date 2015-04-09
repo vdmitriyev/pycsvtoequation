@@ -3,10 +3,10 @@
 
 __credits__ = ['Viktor Dmitriyev']
 __license__ = '?'
-__version__ = '1.5.0'
+__version__ = '1.6.0'
 __status__  = 'dev'
 __date__    = '08.04.2015'
-__description__ = 'Directory helper to manage folder for TEX'
+__description__ = 'Collection of helper for CSV to Equation conversion'
 
 import os
 import csv
@@ -37,20 +37,25 @@ z = Symbol('z')
 TEX_BAT_FILE_NAME = '_latex.bat'
 PY_BAT_FILE_NAME = 'run-solver.bat'
 
-def to_template(row, context, printer):
+def to_template(row, context, printer, append_errors = True):
     """
-    (list, dict) -> str
+        (list, dict, obj) -> str
 
         Reading template and replacing values inside from ones send.
 
     """
 
     result = read_file(context['PathToTemplate'])
+    err_buffer = ''
 
     for mapping in context['MapppingCSVToLatex']:
         field = context['MapppingCSVToLatex'][mapping]
-        value_index = field['index']
         value_type = field['type']
+
+        if value_type == 'config':
+            continue
+
+        value_index = field['index']
         value = row[value_index]
 
         # some work arround to execute fetched formula for proper conversion
@@ -66,29 +71,43 @@ def to_template(row, context, printer):
                     value = c2p(value, simple=True)
             except Exception, ex:
                 print '[x] exception: {0}'.format(str(ex))
+                err_buffer += '[x] exception: {0}'.format(str(ex))
                 print '[i] exception at value: {0}'.format(str(value))
+                err_buffer += '[i] exception at value: {0}'.format(str(value))
                 value = row[value_index]
 
         # replacing template's default value with fetched one
         result = result.replace(mapping, str(value))
-    
+
+    if append_errors:
+        if context['OutputType'] == 'latex':
+            result += '\\\\Errors:\\\\'
+            result += err_buffer
+        elif context['OutputType'] in ('mathml', 'mathjax'):
+            result += '<br>Errors:<br>'
+            result += '<pre>{0}</pre>'.format(err_buffer)
+        else:
+            print '[e] UNKNOWN type of output, set "latex", "mathml" or "mathjax"'
+
     return result
 
 def save_equation(solutions, index, context, separate_equations=False):
     """
         (list, str) -> None
 
-        Saving solution as LaTex or MathML file
+        Saving solution into onec of the following formats:
+            -   LaTex 
+            -   MathML
+            -   MathJax
     """
 
-    # identifying the name of current python file
     #equation_name = os.path.basename(py_file_name)[:-3]
-    equation_name = context['TargetNamePrefix']
+    equation_name = context['MapppingCSVToLatex']['TargetNamePrefix']['value']
 
     # creating the folder for tex file
     create_directory(equation_name)
 
-    if context['OutputType'] in ('latex'):
+    if context['OutputType'] == 'latex':
         printer = LatexPrinter()
         extension = '.tex'
     elif context['OutputType'] == 'mathml':
@@ -102,11 +121,7 @@ def save_equation(solutions, index, context, separate_equations=False):
         return
 
     _file_name = '{0}/{1}{2}'.format(equation_name, equation_name + '-' + str(adjust_number(index)), extension)
-    
-    
     save_file(_file_name, to_template(solutions, context, printer))
-
-    # some info output
     print '[i] {0} saved into "{1}"'.format(context['OutputType'], _file_name)
 
 

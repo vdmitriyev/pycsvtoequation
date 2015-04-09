@@ -4,3 +4,4 @@
 *.tex
 *.bat
 *.html
+pycsvtoequation\output.txt
