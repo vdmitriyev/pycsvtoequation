@@ -5,3 +5,4 @@
 *.bat
 *.html
 pycsvtoequation\output.txt
+pycsvtoequation\output-log.txt

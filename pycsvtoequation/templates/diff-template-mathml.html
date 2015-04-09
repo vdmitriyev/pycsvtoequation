@@ -1,27 +1,78 @@
 <!doctype html>
   <html>
   <head>
-  <meta charset="UTF-8">
-  <title>MathML Template</title>
+	<meta charset="UTF-8">
+	<title>MathML Template</title>
+	<style>
+	
+		div#isEqual{
+			background-color: green;
+		}
+		
+		span#Passed{
+			background-color: green;
+		}
+		
+		span#Failed{
+			background-color: red;
+		}
+		
+	</style>
+	
   </head>
   <body>
-	Equation: </br>
+  
+	<hr width="80%">
+		<b>Equation<b>
+		<br>
 		<!-- this string will be replaced -->
-		OriginalEquation
-		<!-- end -->
+			OriginalEquation
+		<!-- -->
 	</br>
 	
-	Custom Solution:<br>
+	<hr width="80%">
+		<b>Expected Solution</b> <br>
 		<!-- this string will be replaced -->
-		CustomSolution
-		<!-- end -->
+			expected
+		<!-- -->
 	<br>
 	
-	Sympy Solution:<br>
+	<hr width="80%">
+		<b>Custom</b> Solution<br>
+		<!-- this string will be replaced -->
+			CustomSolution
+		<!-- -->
+	<br>
+	
+	<div>
+		<span> Is <b>Custom Solution</b> correct? <span>
+		<span id="IsCorrectSolutionCustom"> 
+		<!-- this string will be replaced -->
+		IsCorrectSolutionCustom
+		<!-- -->
+		<span>
+	</div>
+	
+	<hr width="80%">
+	
+		<b>Sympy</b> Solution<br>
 		<!-- this string will be replaced -->
 		SympySolution
-		<!-- end -->
+		<!-- -->
 	<br>
-
+	
+	<div>
+		<span> Is <b>Sympy Solution</b> correct? <span>
+		<span id="IsCorrectSolutionSympy"> 
+		<!-- this string will be replaced -->
+		IsCorrectSolutionSympy
+		<!-- -->
+		<span>
+	</div>
+	
+	<hr width="80%">
+	
+	ERRORSPLACE
+	
   </body>
 </html> 

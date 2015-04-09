@@ -37,7 +37,7 @@ def main():
 
 
     for index, row in enumerate(csv_data):
-        save_equation(row, index, context, separate_equations=True)
+        save_equation(row, index, context)
  
 if __name__ == '__main__':
     main()

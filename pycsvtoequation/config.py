@@ -31,7 +31,7 @@ MAPPING_CSV_DIFF  = {
                         'index': 4, 
                         'type': 'equation'
                 },
-                'IsCorrectCustomSolution': {
+                'IsCorrectSolutionCustom': {
                     'index': 5,
                     'type' : 'text'
                     },
@@ -39,13 +39,13 @@ MAPPING_CSV_DIFF  = {
                     'index': 2, 
                     'type': 'equation'
                 },
-                'IsCorrectSympySolution' : {
+                'IsCorrectSolutionSympy' : {
                     'index' : 3,
                     'type': 'text'
                 },
                 'expected': {
                     'index' : 1,
-                    'type': 'text'
+                    'type': 'equation'
                 }
                 # ,
                 # 'IsEqualCustomToSympy': {

@@ -47,7 +47,7 @@ def to_template(row, context, printer, append_errors = True):
 
     result = read_file(context['PathToTemplate'])
     err_buffer = ''
-
+    
     for mapping in context['MapppingCSVToLatex']:
         field = context['MapppingCSVToLatex'][mapping]
         value_type = field['type']
@@ -64,34 +64,36 @@ def to_template(row, context, printer, append_errors = True):
                 code_to_execute = 'expression_own = {0}'.format(str(value))
                 exec code_to_execute
                 value = printer._print(expression_own)
-
                 # when context points to mathml
                 if context['OutputType'] == 'mathml':
                     value = value.toprettyxml()
                     value = c2p(value, simple=True)
             except Exception, ex:
                 print '[x] exception: {0}'.format(str(ex))
-                err_buffer += '[x] exception: {0}'.format(str(ex))
                 print '[i] exception at value: {0}'.format(str(value))
-                err_buffer += '[i] exception at value: {0}'.format(str(value))
-                value = row[value_index]
+                err_buffer += '[x] exception: {0}\n'.format(str(ex))
+                err_buffer += '[i] exception at value: {0}\n'.format(str(value))
 
         # replacing template's default value with fetched one
         result = result.replace(mapping, str(value))
 
-    if append_errors:
+    if append_errors or len(err_buffer) > 0:
+        err_output = ''
         if context['OutputType'] == 'latex':
-            result += '\\\\Errors:\\\\'
-            result += err_buffer
+            err_output += '\\\\Conversion Errors (if any):\\\\'
+            err_output += err_buffer
         elif context['OutputType'] in ('mathml', 'mathjax'):
-            result += '<br>Errors:<br>'
-            result += '<pre>{0}</pre>'.format(err_buffer)
+            err_output += '<br>Conversion Errors (if any):<br>'
+            err_output += '<pre>{0}</pre>'.format(err_buffer)
         else:
-            print '[e] UNKNOWN type of output, set "latex", "mathml" or "mathjax"'
+            err_output = '[e] UNKNOWN type of output, set "latex", "mathml" or "mathjax"'
+
+        result = result.replace('ERRORSPLACE', str(err_output))
+        
 
     return result
 
-def save_equation(solutions, index, context, separate_equations=False):
+def save_equation(solutions, index, context):
     """
         (list, str) -> None
 
