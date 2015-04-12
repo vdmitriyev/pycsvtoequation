@@ -11,6 +11,7 @@ __description__ = 'Collection of helper for CSV to Equation conversion'
 import os
 import csv
 import codecs
+import difflib
 
 # importing sympy module located in parent folder
 # NOTE that the original sympy should be removed from system
@@ -42,12 +43,16 @@ def to_template(row, context, printer, append_errors = True):
         (list, dict, obj) -> str
 
         Reading template and replacing values inside from ones send.
-
     """
 
     result = read_file(context['PathToTemplate'])
     err_buffer = ''
-    
+    csv_orig_buffer = ''
+    custom_new_line = '\n'
+
+    if context['OutputType'] == 'latex':
+        custom_new_line = '\\\\'
+
     for mapping in context['MapppingCSVToLatex']:
         field = context['MapppingCSVToLatex'][mapping]
         value_type = field['type']
@@ -57,13 +62,14 @@ def to_template(row, context, printer, append_errors = True):
 
         value_index = field['index']
         value = row[value_index]
-
         # some work arround to execute fetched formula for proper conversion
         if value_type == 'equation':
+            csv_orig_buffer += '{0}: {1}{2}'.format(mapping, value, custom_new_line)
             try:
                 code_to_execute = 'expression_own = {0}'.format(str(value))
                 exec code_to_execute
                 value = printer._print(expression_own)
+
                 # when context points to mathml
                 if context['OutputType'] == 'mathml':
                     value = value.toprettyxml()
@@ -71,8 +77,8 @@ def to_template(row, context, printer, append_errors = True):
             except Exception, ex:
                 print '[x] exception: {0}'.format(str(ex))
                 print '[i] exception at value: {0}'.format(str(value))
-                err_buffer += '[x] exception: {0}\n'.format(str(ex))
-                err_buffer += '[i] exception at value: {0}\n'.format(str(value))
+                err_buffer += '[x] exception: {0}{1}'.format(str(ex), custom_new_line)
+                err_buffer += '[i] exception at value: {0}{1}'.format(str(value), custom_new_line)
 
         # replacing template's default value with fetched one
         result = result.replace(mapping, str(value))
@@ -89,7 +95,8 @@ def to_template(row, context, printer, append_errors = True):
             err_output = '[e] UNKNOWN type of output, set "latex", "mathml" or "mathjax"'
 
         result = result.replace('ERRORSPLACE', str(err_output))
-        
+
+    result = result.replace('CSVORIGINPLACE', str(csv_orig_buffer))
 
     return result
 
