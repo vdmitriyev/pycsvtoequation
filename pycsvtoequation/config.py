@@ -8,6 +8,7 @@ TEMPLATES_FOLDER = 'templates'
 # setting path to sympy
 # it's enough if you just git clone it and set the path to git's folder
 SYMPY_PATH = 'c:\\github\\mathapp\\master\\'
+#SYMPY_PATH = 'c:\\github\\mathapp\\sympy-original\\master\\'
 
 # Mapping CSV fields for processing
 MAPPING_CSV_DIFF  = {

@@ -22,12 +22,16 @@ sys.path.insert(0, config.SYMPY_PATH)
 
 # printers
 from sympy.printing.latex import LatexPrinter
-from sympy.printing.mathml import MathMLPrinter, mathml
+from sympy.printing.mathml import MathMLPrinter
 from sympy.utilities.mathml import *
 
 # sympy package
 from sympy import *
-from sympy.utilities.solution import *
+
+try:
+    from sympy.utilities.solution import *
+except:
+    pass
 
 x = Symbol('x')
 y = Symbol('y')
